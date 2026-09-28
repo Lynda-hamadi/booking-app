@@ -46,6 +46,7 @@ model Booking {
   endTime    DateTime
   status     BookingStatus @default(PENDING)
   totalPrice Int
+  refundAmount Int?
   userId     Int
   user       User          @relation(fields: [userId], references: [id])
   resourceId Int

@@ -82,4 +82,60 @@ router.get("/me", requireAuth, async (req, res) => {
   }
 });
 
+router.post("/:id/cancel", requireAuth, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ error: "Identifiant invalide" });
+      return;
+    }
+
+    const booking = await prisma.booking.findUnique({ where: { id } });
+
+    // 404 aussi si la réservation appartient à quelqu'un d'autre :
+    // on ne révèle pas l'existence des réservations des autres
+    if (!booking || booking.userId !== req.user!.userId) {
+      res.status(404).json({ error: "Réservation introuvable" });
+      return;
+    }
+    if (booking.status === "CANCELLED") {
+      res.status(409).json({ error: "Réservation déjà annulée" });
+      return;
+    }
+
+    const now = new Date();
+    if (booking.startTime <= now) {
+      res.status(400).json({ error: "Impossible d'annuler une réservation déjà commencée" });
+      return;
+    }
+
+    const hoursBeforeStart = (booking.startTime.getTime() - now.getTime()) / 3600000;
+    const refundAmount =
+      hoursBeforeStart >= 24 ? booking.totalPrice : Math.round(booking.totalPrice * 0.5);
+
+    // Mise à jour conditionnelle : si deux annulations arrivent en même temps,
+    // une seule passe (la seconde trouve 0 ligne à modifier)
+    const result = await prisma.booking.updateMany({
+      where: { id, status: { not: "CANCELLED" } },
+      data: { status: "CANCELLED", refundAmount },
+    });
+    if (result.count === 0) {
+      res.status(409).json({ error: "Réservation déjà annulée" });
+      return;
+    }
+
+    const updated = await prisma.booking.findUnique({ where: { id } });
+    res.json(updated);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+
+
+
+
+
+
 export default router;
