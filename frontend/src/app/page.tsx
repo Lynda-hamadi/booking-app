@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type Resource = {
   id: number;
   name: string;
@@ -27,7 +29,11 @@ export default async function Home() {
         <ul className="space-y-4">
           {resources.map((r) => (
             <li key={r.id} className="border rounded-lg p-4 shadow-sm">
-              <h2 className="text-xl font-semibold">{r.name}</h2>
+              <h2 className="text-xl font-semibold">
+                <Link href={`/resources/${r.id}`} className="underline">
+                  {r.name}
+                </Link>
+              </h2>
               {r.description && <p className="text-gray-600">{r.description}</p>}
               <p className="mt-2 font-medium">
                 {(r.pricePerHour / 100).toFixed(2)} € / heure
