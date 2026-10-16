@@ -58,54 +58,73 @@ export default function BookingForm({ resourceId, pricePerHour }: Props) {
 
   if (!user) {
     return (
-      <p className="mt-8 text-gray-600">
-        <Link href="/login" className="underline">
-          Connecte-toi
-        </Link>{" "}
-        pour réserver cette ressource.
-      </p>
+      <div className="mt-6 rounded-xl border border-indigo-100 bg-indigo-50 p-6 text-center">
+        <p className="text-slate-700">Connecte-toi pour réserver cette ressource.</p>
+        <Link
+          href="/login"
+          className="mt-3 inline-block rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+        >
+          Se connecter
+        </Link>
+      </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-4 border rounded-lg p-4">
-      <h2 className="text-xl font-semibold">Réserver un créneau</h2>
+    <form
+      onSubmit={handleSubmit}
+      className="mt-6 space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+    >
+      <h2 className="text-xl font-semibold text-slate-900">Réserver un créneau</h2>
 
-      <label className="block text-sm">
-        Début
-        <input
-          type="datetime-local"
-          value={start}
-          onChange={(e) => setStart(e.target.value)}
-          required
-          className="w-full border rounded p-2 mt-1"
-        />
-      </label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block text-sm font-medium text-slate-700">
+          Début
+          <input
+            type="datetime-local"
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
+            required
+            className="mt-1 w-full rounded-lg border border-slate-300 p-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          />
+        </label>
 
-      <label className="block text-sm">
-        Fin
-        <input
-          type="datetime-local"
-          value={end}
-          onChange={(e) => setEnd(e.target.value)}
-          required
-          className="w-full border rounded p-2 mt-1"
-        />
-      </label>
+        <label className="block text-sm font-medium text-slate-700">
+          Fin
+          <input
+            type="datetime-local"
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
+            required
+            className="mt-1 w-full rounded-lg border border-slate-300 p-2 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+          />
+        </label>
+      </div>
 
       {estimate !== null && (
-        <p className="text-sm text-gray-600">
-          Prix estimé : {(estimate / 100).toFixed(2)} €
+        <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
+          Prix estimé :{" "}
+          <span className="font-semibold text-slate-900">
+            {(estimate / 100).toFixed(2)} €
+          </span>
         </p>
       )}
 
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      {success && <p className="text-green-700 text-sm">{success}</p>}
+      {error && (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      )}
+      {success && (
+        <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {success}
+        </p>
+      )}
 
       <button
         type="submit"
         disabled={submitting}
-        className="w-full bg-black text-white rounded p-2 disabled:opacity-50"
+        className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
       >
         {submitting ? "Réservation..." : "Réserver"}
       </button>

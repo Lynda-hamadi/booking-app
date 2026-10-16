@@ -20,25 +20,48 @@ export default async function Home() {
   const resources = await getResources();
 
   return (
-    <main className="max-w-3xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Ressources disponibles</h1>
+    <main className="max-w-3xl mx-auto px-8 py-10">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-900">
+          Réserve en quelques clics
+        </h1>
+        <p className="mt-2 text-slate-600">
+          Salles, studios, matériel : choisis une ressource et réserve ton créneau.
+        </p>
+      </header>
 
       {resources.length === 0 ? (
-        <p className="text-gray-500">Aucune ressource pour le moment.</p>
+        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
+          Aucune ressource pour le moment.
+        </div>
       ) : (
-        <ul className="space-y-4">
+        <ul className="grid gap-5 sm:grid-cols-2">
           {resources.map((r) => (
-            <li key={r.id} className="border rounded-lg p-4 shadow-sm">
-              <h2 className="text-xl font-semibold">
-                <Link href={`/resources/${r.id}`} className="underline">
-                  {r.name}
-                </Link>
-              </h2>
-              {r.description && <p className="text-gray-600">{r.description}</p>}
-              <p className="mt-2 font-medium">
-                {(r.pricePerHour / 100).toFixed(2)} € / heure
-              </p>
-              <p className="text-sm text-gray-400">Par {r.owner.name}</p>
+            <li key={r.id}>
+              <Link
+                href={`/resources/${r.id}`}
+                className="group flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="text-lg font-semibold text-slate-900 group-hover:text-indigo-600">
+                    {r.name}
+                  </h2>
+                  <span className="shrink-0 rounded-full bg-indigo-50 px-3 py-1 text-sm font-semibold text-indigo-700">
+                    {(r.pricePerHour / 100).toFixed(2)} €/h
+                  </span>
+                </div>
+
+                <p className="mt-2 flex-1 text-sm text-slate-600">
+                  {r.description ?? "Pas de description."}
+                </p>
+
+                <div className="mt-4 flex items-center justify-between text-sm">
+                  <span className="text-slate-400">Par {r.owner.name}</span>
+                  <span className="font-medium text-indigo-600">
+                    Voir et réserver →
+                  </span>
+                </div>
+              </Link>
             </li>
           ))}
         </ul>

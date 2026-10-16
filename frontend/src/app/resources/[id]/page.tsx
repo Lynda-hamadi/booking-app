@@ -29,19 +29,29 @@ export default async function ResourcePage({
   if (!resource) notFound();
 
   return (
-    <main className="max-w-3xl mx-auto p-8">
-      <Link href="/" className="text-sm underline text-gray-600">
+    <main className="max-w-3xl mx-auto px-8 py-10">
+      <Link
+        href="/"
+        className="text-sm font-medium text-slate-500 hover:text-indigo-600"
+      >
         ← Retour aux ressources
       </Link>
 
-      <h1 className="text-3xl font-bold mt-4">{resource.name}</h1>
-      {resource.description && (
-        <p className="text-gray-600 mt-2">{resource.description}</p>
-      )}
-      <p className="mt-4 font-medium">
-        {(resource.pricePerHour / 100).toFixed(2)} € / heure
-      </p>
-      <p className="text-sm text-gray-400">Par {resource.owner.name}</p>
+      <section className="mt-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-3xl font-bold text-slate-900">{resource.name}</h1>
+          <span className="shrink-0 rounded-full bg-indigo-50 px-4 py-1.5 text-sm font-semibold text-indigo-700">
+            {(resource.pricePerHour / 100).toFixed(2)} €/h
+          </span>
+        </div>
+
+        <p className="mt-3 text-slate-600">
+          {resource.description ?? "Pas de description."}
+        </p>
+        <p className="mt-4 text-sm text-slate-400">
+          Proposé par {resource.owner.name}
+        </p>
+      </section>
 
       <BookingForm resourceId={resource.id} pricePerHour={resource.pricePerHour} />
     </main>
