@@ -17,6 +17,9 @@ export default function Navbar() {
           <div className="flex items-center gap-4 text-sm">
             {user ? (
               <>
+                <Link href="/bookings" className="underline">
+                  Mes réservations
+                </Link>
                 <span className="text-gray-600">{user.name}</span>
                 <button onClick={logout} className="underline">
                   Déconnexion
