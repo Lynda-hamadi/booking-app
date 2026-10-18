@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: booking_app
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d booking_app"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/booking_app
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me}
+      PORT: "3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && npm start"
+    ports:
+      - "3001:3001"
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+    environment:
+      INTERNAL_API_URL: http://api:3001
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:

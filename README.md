@@ -58,6 +58,24 @@ Déploiement : Vercel (frontend), Render (API), Neon (PostgreSQL).
 | GET | `/api/bookings/me` | connecté | Mes réservations |
 | POST | `/api/bookings/:id/cancel` | connecté | Annuler une réservation |
 
+
+## Lancer avec Docker (le plus simple)
+
+Prérequis : Docker Desktop. Aucune installation de Node ou de PostgreSQL n'est nécessaire.
+
+```bash
+git clone https://github.com/Lynda-hamadi/booking-app.git
+cd booking-app
+docker compose up --build
+```
+
+Cette commande démarre trois conteneurs : PostgreSQL, l'API (qui applique les migrations au démarrage) et le site. L'application est disponible sur http://localhost:3000 et l'API sur http://localhost:3001.
+
+Pour arrêter : `docker compose down` (ajoute `-v` pour supprimer aussi les données).
+
+
+
+
 ## Lancer le projet en local
 
 Prérequis : Node.js et PostgreSQL.
