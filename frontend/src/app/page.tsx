@@ -9,7 +9,7 @@ type Resource = {
 };
 
 async function getResources(): Promise<Resource[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/resources`, {
+  const res = await fetch(`${process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL}/api/resources`, {
     cache: "no-store",
   });
   if (!res.ok) throw new Error("Impossible de charger les ressources");

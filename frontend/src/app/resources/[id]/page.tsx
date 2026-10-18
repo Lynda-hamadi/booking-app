@@ -11,7 +11,7 @@ type Resource = {
 };
 
 async function getResource(id: string): Promise<Resource | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/resources/${id}`, {
+  const res = await fetch(`${process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL}/api/resources/${id}`, {
     cache: "no-store",
   });
   if (res.status === 404 || res.status === 400) return null;

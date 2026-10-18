@@ -1,0 +1,6 @@
+postgresql://neondb_owner:npg_vC5bhNa8mFGM@ep-red-frog-baaptvol-pooler.c-8.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+
+
+
+127af27583cfeccdebf27c1a5a68ab57f405b5853b0b315bc585147a3cd58f10

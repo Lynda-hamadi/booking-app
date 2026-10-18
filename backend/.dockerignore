@@ -1,0 +1,9 @@
+node_modules
+generated
+dist
+tests
+.env
+.env.test
+.git
+Dockerfile
+.dockerignore
