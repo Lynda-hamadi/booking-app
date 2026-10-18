@@ -48,3 +48,15 @@ jobs:
       - run: npx prisma migrate deploy
 
       - run: npm test
+
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build API image
+        run: docker build -t booking-api ./backend
+
+      - name: Build web image
+        run: docker build -t booking-web --build-arg NEXT_PUBLIC_API_URL=http://localhost:3001 ./frontend
