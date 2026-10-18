@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   backend-tests:
     runs-on: ubuntu-latest
@@ -60,3 +63,21 @@ jobs:
 
       - name: Build web image
         run: docker build -t booking-web --build-arg NEXT_PUBLIC_API_URL=http://localhost:3001 ./frontend
+
+  security-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Audit backend dependencies
+        run: npm audit --omit=dev --audit-level=high
+        working-directory: backend
+
+      - name: Audit frontend dependencies
+        run: npm audit --omit=dev --audit-level=high
+        working-directory: frontend
