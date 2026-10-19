@@ -171,13 +171,57 @@ Le projet est industrialisé de bout en bout.
 - Aucun scanner tiers ajouté au pipeline à ce stade : le compromis de l'action Trivy en mars 2026 a rappelé le risque de la chaîne d'approvisionnement des workflows. Les actions utilisées sont les actions officielles GitHub.
 
 
+## Kubernetes
+
+Les manifestes du dossier `k8s/` déploient l'application complète sur un cluster local [kind](https://kind.sigs.k8s.io/) :
+
+- **PostgreSQL** : StatefulSet avec volume persistant et sonde de disponibilité (`pg_isready`)
+- **API** : Deployment de 2 réplicas, migrations Prisma appliquées par un `initContainer` avant le démarrage, sonde de disponibilité sur `/api/health` (qui vérifie la base) et sonde de vivacité volontairement indépendante de la base
+- **Site** : Deployment de 2 réplicas, appelle l'API par son nom de service interne
+- Requêtes et limites de ressources définies pour chaque pod
+- **Secrets** : créés directement dans le cluster, jamais écrits dans le dépôt
+
+Prérequis : Docker Desktop, [kind](https://kind.sigs.k8s.io/) et `kubectl`.
+
+```bash
+kind create cluster --name booking
+
+# Images construites en local et chargées dans le cluster
+docker build -t booking-api:local ./backend
+docker build -t booking-web:local --build-arg NEXT_PUBLIC_API_URL=http://localhost:3001 ./frontend
+kind load docker-image booking-api:local --name booking
+kind load docker-image booking-web:local --name booking
+
+# Espace de noms et secrets (remplacer le mot de passe : lettres et chiffres uniquement)
+kubectl apply -f k8s/namespace.yaml
+kubectl create secret generic booking-secrets --namespace booking \
+  --from-literal=POSTGRES_PASSWORD=VOTRE_MOT_DE_PASSE \
+  --from-literal=JWT_SECRET=$(node -e "console.log(crypto.randomBytes(32).toString('hex'))")
+
+# Déploiement
+kubectl apply -f k8s/postgres.yaml
+kubectl apply -f k8s/api.yaml
+kubectl apply -f k8s/web.yaml
+kubectl get pods -n booking
+```
+
+Accès depuis le navigateur, dans deux terminaux :
+
+```bash
+kubectl port-forward -n booking svc/api 3001:3001
+kubectl port-forward -n booking svc/web 3000:3000
+```
+
+L'application est alors disponible sur http://localhost:3000.
+
+
 ## Prochaines étapes
 
 - [x] Frontend Next.js
 - [x] Déploiement
 - [x] Conteneurisation (Docker, docker-compose)
 - [x] CI/CD avec audit de sécurité et publication d'images
-- [ ] Déploiement sur Kubernetes
+- [x] Déploiement sur Kubernetes (cluster local kind)
 - [ ] Monitoring (Prometheus, Grafana)
 - [ ] Infrastructure as Code (Terraform)
 - [ ] Paiement Stripe (mode test)
