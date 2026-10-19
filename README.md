@@ -219,6 +219,7 @@ L'application est alors disponible sur http://localhost:3000.
 ## Observabilité
 
 L'API expose ses métriques au format Prometheus sur `/metrics` (durée des requêtes par méthode, route et code de statut, plus les métriques du processus Node). Les étiquettes utilisent le **modèle de route** (`/api/bookings/:id/cancel`) et non l'URL réelle, pour éviter une explosion du nombre de séries.
+![Tableau de bord Grafana](docs/grafana-dashboard.png)
 
 Dans le cluster :
 
