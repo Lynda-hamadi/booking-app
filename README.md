@@ -215,6 +215,32 @@ kubectl port-forward -n booking svc/web 3000:3000
 L'application est alors disponible sur http://localhost:3000.
 
 
+
+## Observabilité
+
+L'API expose ses métriques au format Prometheus sur `/metrics` (durée des requêtes par méthode, route et code de statut, plus les métriques du processus Node). Les étiquettes utilisent le **modèle de route** (`/api/bookings/:id/cancel`) et non l'URL réelle, pour éviter une explosion du nombre de séries.
+
+Dans le cluster :
+
+- **Prometheus** collecte les métriques de chaque réplica de l'API toutes les 15 secondes, via un Service headless et la découverte DNS
+- **Grafana** affiche le tableau de bord « Booking API », défini comme du code (ConfigMap) et chargé au démarrage : requêtes par seconde par route, latence au 95ᵉ centile, erreurs 5xx et conflits 409 (créneaux déjà pris), mémoire par instance
+- La source de données et le tableau de bord sont provisionnés : aucune configuration manuelle dans l'interface
+- Le mot de passe de Grafana est créé comme secret dans le cluster, il n'est pas dans le dépôt
+
+```bash
+kubectl create secret generic grafana-admin --namespace booking \
+  --from-literal=GF_SECURITY_ADMIN_PASSWORD=VOTRE_MOT_DE_PASSE
+
+kubectl apply -f k8s/api-headless.yaml
+kubectl apply -f k8s/prometheus.yaml
+kubectl apply -f k8s/grafana.yaml
+
+kubectl port-forward -n booking svc/grafana 3002:3000
+```
+
+Grafana est alors disponible sur http://localhost:3002 (utilisateur `admin`).
+
+
 ## Prochaines étapes
 
 - [x] Frontend Next.js
@@ -222,7 +248,7 @@ L'application est alors disponible sur http://localhost:3000.
 - [x] Conteneurisation (Docker, docker-compose)
 - [x] CI/CD avec audit de sécurité et publication d'images
 - [x] Déploiement sur Kubernetes (cluster local kind)
-- [ ] Monitoring (Prometheus, Grafana)
+- [x] Monitoring (Prometheus, Grafana)
 - [ ] Infrastructure as Code (Terraform)
 - [ ] Paiement Stripe (mode test)
 - [ ] Notifications par email
