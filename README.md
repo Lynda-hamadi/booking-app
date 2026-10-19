@@ -146,9 +146,39 @@ npm test
 - **API** : Render, dossier racine `backend`, variables `DATABASE_URL` et `JWT_SECRET`
 - **Frontend** : Vercel, dossier racine `frontend`, variable `NEXT_PUBLIC_API_URL` pointant vers l'API
 
+
+
+## DevOps
+
+Le projet est industrialisé de bout en bout.
+
+**Conteneurisation**
+- Un Dockerfile par service, avec installation des dépendances mise en cache et exécution sous un utilisateur non root
+- Build multi-étapes pour le frontend : l'image finale ne contient que le strict nécessaire (mode `standalone` de Next.js)
+- `docker-compose.yml` : base PostgreSQL, API et site démarrent avec une seule commande, les migrations sont appliquées au lancement de l'API
+
+**CI/CD (GitHub Actions)**
+- Tests du backend sur une base PostgreSQL éphémère, y compris le test de concurrence
+- Construction des images Docker à chaque push
+- Audit des dépendances (`npm audit`) : le pipeline échoue si une faille de gravité haute apparaît en production
+- Publication des images dans GitHub Container Registry, taguées avec le SHA du commit, uniquement depuis `main` et uniquement si tous les contrôles précédents sont verts
+- Permissions minimales par défaut (`contents: read`), `packages: write` accordé au seul job de publication
+
+**Maintenance des dépendances**
+- Dependabot : mises à jour mineures regroupées en une seule demande par projet, versions majeures ignorées, nombre de demandes ouvertes limité
+
+**Choix de sécurité**
+- Aucun scanner tiers ajouté au pipeline à ce stade : le compromis de l'action Trivy en mars 2026 a rappelé le risque de la chaîne d'approvisionnement des workflows. Les actions utilisées sont les actions officielles GitHub.
+
+
 ## Prochaines étapes
 
 - [x] Frontend Next.js
 - [x] Déploiement
+- [x] Conteneurisation (Docker, docker-compose)
+- [x] CI/CD avec audit de sécurité et publication d'images
+- [ ] Déploiement sur Kubernetes
+- [ ] Monitoring (Prometheus, Grafana)
+- [ ] Infrastructure as Code (Terraform)
 - [ ] Paiement Stripe (mode test)
 - [ ] Notifications par email
