@@ -81,3 +81,36 @@ jobs:
       - name: Audit frontend dependencies
         run: npm audit --omit=dev --audit-level=high
         working-directory: frontend
+
+  publish-images:
+    needs: [backend-tests, docker-build, security-audit]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build and push API image
+        run: |
+          IMAGE=ghcr.io/lynda-hamadi/booking-api
+          docker build \
+            --label org.opencontainers.image.source=https://github.com/Lynda-hamadi/booking-app \
+            -t $IMAGE:${{ github.sha }} -t $IMAGE:latest ./backend
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
+
+      - name: Build and push web image
+        run: |
+          IMAGE=ghcr.io/lynda-hamadi/booking-web
+          docker build \
+            --label org.opencontainers.image.source=https://github.com/Lynda-hamadi/booking-app \
+            --build-arg NEXT_PUBLIC_API_URL=https://booking-app-api-zq0j.onrender.com \
+            -t $IMAGE:${{ github.sha }} -t $IMAGE:latest ./frontend
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
